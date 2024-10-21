@@ -1,0 +1,5 @@
+/home/t225/Project1/build/CMakeFiles/rebuild_cache.dir
+/home/t225/Project1/build/CMakeFiles/edit_cache.dir
+/home/t225/Project1/build/CMakeFiles/triangulation.dir
+/home/t225/Project1/build/CMakeFiles/CGAL_Qt5_moc_and_resources.dir
+/home/t225/Project1/build/CMakeFiles/CGAL_Qt5_moc_and_resources_autogen.dir
