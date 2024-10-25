@@ -140,8 +140,8 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                 Point c = fit->vertex(2)->point();
 
                 int is_Obtuse = has_Obtuse_Angle(a, b, c);
-                if (is_Obtuse != -1) // δηλαδή η γωνία ΔΕΝ είναι οξεία ή κάθετη -> αμβλεία
-                {
+                if (is_Obtuse != -1)
+                { // δηλαδή η γωνία ΔΕΝ είναι οξεία ή κάθετη -> αμβλεία
                     Point steiner;
                     if (is_Obtuse == 0)
                         steiner = insert_Steiner(b, c); // απέναντι πλευρά από το A
@@ -149,12 +149,8 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                         steiner = insert_Steiner(a, c); // απέναντι πλευρά από το σημείο B
                     else                                // δλδ, is_Obtuse = 2
                         steiner = insert_Steiner(a, b); // απέναντι πλευρά από το C
-
-                    // Εισαγωγή του Steiner σημείου και τερματισμός του loop
                     CDT temp_cdt = cdt;
                     temp_cdt.insert(steiner);
-
-                    // Υπολογισμός των αμβλείων γωνιών μετά την εισαγωγή
                     int new_obtuse_count = count_Obtuse_Angles(temp_cdt);
                     if (new_obtuse_count < original_graph_count)
                     {
