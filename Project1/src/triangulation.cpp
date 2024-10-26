@@ -5,6 +5,8 @@
 #include "triangulation.h"
 #include <CGAL/Polygon_2.h>
 #include <CGAL/draw_triangulation_2.h>
+#include <CGAL/centroid.h>
+#include <CGAL/convex_hull_2.h>
 #include <unordered_map>
 #include <cmath>
 
@@ -95,6 +97,97 @@ int count_Obtuse_Angles(CDT &cdt)
     return count;
 }
 
+// Μέθοδος για εύρεση γειτονικών αμβλυγώνιων finite faces και δημιουργία του κυρτού περιβλήματος
+Polygon_2 find_convex_polygon_around_obtuse_triangle(CDT &cdt, Face_handle face)
+{
+    set<Face_handle> visited_faces;
+    queue<Face_handle> face_queue;
+    Polygon_2 convex_polygon;
+
+    // Αρχικοποίηση με το αρχικό αμβλυγώνιο τρίγωνο
+    face_queue.push(face);
+    visited_faces.insert(face);
+
+    while (!face_queue.empty())
+    {
+        Face_handle current_face = face_queue.front();
+        face_queue.pop();
+
+        // Προσθήκη σημείων του current_face στο polygon
+        for (int i = 0; i < 3; i++)
+        {
+            convex_polygon.push_back(current_face->vertex(i)->point());
+        }
+
+        // Έλεγχος για τους γειτονικούς κόμβους
+        for (int i = 0; i < 3; i++)
+        {
+            Face_handle neighbor = current_face->neighbor(i);
+            if (!cdt.is_infinite(neighbor) && visited_faces.find(neighbor) == visited_faces.end())
+            {
+                Point a = neighbor->vertex(0)->point();
+                Point b = neighbor->vertex(1)->point();
+                Point c = neighbor->vertex(2)->point();
+
+                if (has_Obtuse_Angle(a, b, c) != -1) // Έλεγχος αν το γειτονικό τρίγωνο είναι αμβλυγώνιο
+                {
+                    face_queue.push(neighbor);
+                    visited_faces.insert(neighbor);
+                }
+            }
+        }
+    }
+
+    // Δημιουργία του κυρτού περιβλήματος των σημείων του πολυγώνου
+    Polygon_2 convex_hull;
+    CGAL::convex_hull_2(convex_polygon.vertices_begin(), convex_polygon.vertices_end(), back_inserter(convex_hull));
+
+    return convex_hull;
+}
+
+// Μέθοδος εισαγωγής Steiner points στο εσωτερικό κυρτών πολυγώνων που σχηματίζονται από αμβλυγώνια τρίγωνα
+void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_boundary)
+{
+    int steiner_counter = 0;
+
+    for (auto fit = cdt.finite_faces_begin(); fit != cdt.finite_faces_end(); ++fit)
+    {
+        Point a = fit->vertex(0)->point();
+        Point b = fit->vertex(1)->point();
+        Point c = fit->vertex(2)->point();
+
+        // Ελέγχουμε αν το τρίγωνο έχει αμβλεία γωνία
+        if (has_Obtuse_Angle(a, b, c) != -1)
+        {
+            // Δημιουργία κυρτού πολυγώνου γύρω από το αμβλυγώνιο τρίγωνο και τους γείτονές του
+            Polygon_2 convex_polygon = find_convex_polygon_around_obtuse_triangle(cdt, fit);
+
+            // Υπολογισμός του centroid του κυρτού πολυγώνου
+            Point centroid = CGAL::centroid(convex_polygon.vertices_begin(), convex_polygon.vertices_end());
+
+            // Έλεγχος αν το centroid βρίσκεται εντός του αρχικού κυρτού περιβλήματος
+            if (region_boundary.bounded_side(centroid) == CGAL::ON_BOUNDED_SIDE)
+            {
+                CDT temp_cdt = cdt;
+                temp_cdt.insert(centroid);
+
+                // Μέτρηση αμβλεών γωνιών πριν και μετά
+                int original_obtuse_count = count_Obtuse_Angles(cdt);
+                int new_obtuse_count = count_Obtuse_Angles(temp_cdt);
+                if (new_obtuse_count < original_obtuse_count)
+                {
+                    cdt.insert(centroid); // Εισαγωγή του Steiner point στην τριγωνοποίηση
+                    steiner_counter++;
+                    cout << "Inserted Steiner point at centroid: (" << centroid.x() << ", " << centroid.y() << ")" << endl;
+                }
+            }
+        }
+    }
+
+    cout << "Number of Steiner points added by convex polygon method: " << steiner_counter << endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // τριγωνοποίηση
 void triangulate(const vector<int> &points_x, const vector<int> &points_y, const vector<int> &region_boundary, const vector<pair<int, int>> &additional_constraints)
 {
@@ -151,7 +244,8 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                 int is_Obtuse = has_Obtuse_Angle(a, b, c);
                 if (is_Obtuse != -1)
                 { // δηλαδή η γωνία ΔΕΝ είναι οξεία ή κάθετη -> αμβλεία
-                    Point steiner;
+                    insert_Steiner_points_in_convex_polygons(cdt, convex_hull);
+                    /*Point steiner;
                     if (is_Obtuse == 0)
                         steiner = insert_Steiner(b, c); // απέναντι πλευρά από το A
                     else if (is_Obtuse == 1)
@@ -189,7 +283,7 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                         {
                             cout << "Skipped Steiner point at circumcenter (out of convex hull): (" << steiner.x() << ", " << steiner.y() << ")" << endl;
                         }
-                    }
+                    }*/
                 }
             }
         }

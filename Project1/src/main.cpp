@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "json.hpp"        // Χρήση της βιβλιοθήκης JSON
-#include "triangulation.h" // Επικεφαλίδα για την τριγωνοποίηση
+#include "json.hpp"
+#include "triangulation.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -43,7 +43,6 @@ int main()
     loadDataFromJSON("data.json", points_x, points_y, region_boundary, additional_constraints);
 
     // Εκτέλεση τριγωνοποίησης
-    triangulate(points_x, points_y, region_boundary, additional_constraints);
     triangulate(points_x, points_y, region_boundary, additional_constraints);
     return 0;
 }

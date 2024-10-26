@@ -21,6 +21,10 @@ CGAL/Polygon_2.h
 -
 CGAL/draw_triangulation_2.h
 -
+CGAL/centroid.h
+-
+CGAL/convex_hull_2.h
+-
 unordered_map
 -
 cmath
