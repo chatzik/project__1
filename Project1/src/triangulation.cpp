@@ -166,7 +166,7 @@ void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_
             Point centroid = CGAL::centroid(convex_polygon.vertices_begin(), convex_polygon.vertices_end());
 
             // Έλεγχος αν το centroid βρίσκεται εντός του αρχικού κυρτού περιβλήματος
-            if (region_boundary.bounded_side(centroid) == CGAL::ON_BOUNDED_SIDE)
+            // if (region_boundary.bounded_side(centroid) == CGAL::ON_BOUNDED_SIDE)
             {
                 CDT temp_cdt = cdt;
                 temp_cdt.insert(centroid);
@@ -178,13 +178,11 @@ void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_
                 {
                     cdt.insert(centroid); // Εισαγωγή του Steiner point στην τριγωνοποίηση
                     steiner_counter++;
-                    cout << "Inserted Steiner point at centroid: (" << centroid.x() << ", " << centroid.y() << ")" << endl;
+                    cout << "Inserted Steiner point in polygon centroid: (" << centroid.x() << ", " << centroid.y() << ")" << endl;
                 }
             }
         }
     }
-
-    cout << "Number of Steiner points added by convex polygon method: " << steiner_counter << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,32 +243,35 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                 if (is_Obtuse != -1)
                 { // δηλαδή η γωνία ΔΕΝ είναι οξεία ή κάθετη -> αμβλεία
                     insert_Steiner_points_in_convex_polygons(cdt, convex_hull);
-                    /*Point steiner;
+                    Point steiner;
                     if (is_Obtuse == 0)
                         steiner = insert_Steiner(b, c); // απέναντι πλευρά από το A
                     else if (is_Obtuse == 1)
                         steiner = insert_Steiner(a, c); // απέναντι πλευρά από το σημείο B
                     else                                // δλδ, is_Obtuse = 2
                         steiner = insert_Steiner(a, b); // απέναντι πλευρά από το C
-                    CDT temp_cdt = cdt;
-                    temp_cdt.insert(steiner);
-                    int new_obtuse_count = count_Obtuse_Angles(temp_cdt);
-                    if (new_obtuse_count < original_graph_count)
+                                                        // if (convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDED_SIDE)
                     {
-                        cdt.insert(steiner);
-                        found_steiner_point = true;
-                        cout << "Inserted Steiner point at: (" << steiner.x() << ", " << steiner.y() << ")" << endl;
-                        steiner_counter++;
-                        break;
+                        CDT temp_cdt = cdt;
+                        temp_cdt.insert(steiner);
+                        int new_obtuse_count = count_Obtuse_Angles(temp_cdt);
+                        if (new_obtuse_count < original_graph_count)
+                        {
+                            cdt.insert(steiner);
+                            found_steiner_point = true;
+                            cout << "Inserted Steiner point at: (" << steiner.x() << ", " << steiner.y() << ")" << endl;
+                            steiner_counter++;
+                            break;
+                        }
                     }
                     /////////////////////////////////////////////////////////////////// Μέθοδος 2
-                    // Χρήση της έτοιμης συνάρτησης CGAL::circumcenter για υπολογισμό περικέντρου
+                    // Χρήση της έτοιμης συνάρτησης της CGAL circumcenter για υπολογισμό περικέντρου
                     steiner = circumcenter(a, b, c);
                     if (convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDED_SIDE)
                     {
-                        temp_cdt = cdt;
+                        CDT temp_cdt = cdt;
                         temp_cdt.insert(steiner);
-                        new_obtuse_count = count_Obtuse_Angles(temp_cdt);
+                        int new_obtuse_count = count_Obtuse_Angles(temp_cdt);
                         if (new_obtuse_count < original_graph_count)
                         {
                             cdt.insert(steiner);
@@ -283,14 +284,14 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                         {
                             cout << "Skipped Steiner point at circumcenter (out of convex hull): (" << steiner.x() << ", " << steiner.y() << ")" << endl;
                         }
-                    }*/
+                    }
                 }
             }
         }
         original_graph_count = count_Obtuse_Angles(cdt);
     }
-    cout << "Number of obtuse angles in the triangulation: " << original_graph_count << endl;
+
+        cout << "Number of obtuse angles in the triangulation: " << original_graph_count << endl;
     cout << "Number of steiner points added in the triangulation: " << steiner_counter << endl;
-    // Εμφάνιση της τριγωνοποίησης
     draw(cdt);
 }
