@@ -29,9 +29,9 @@ using namespace std;
 
 double calculate_angle(const Point &A, const Point &B, const Point &C)
 {
-    double a2 = squared_distance(B, C); // απέναντι πλευρά από το A
-    double b2 = squared_distance(A, C); // απέναντι πλευρά από το B
-    double c2 = squared_distance(A, B); // απέναντι πλευρά από το C
+    double a2 = squared_distance(B, C); // απεναντι  από το A
+    double b2 = squared_distance(A, C); // απεναντι  από το B
+    double c2 = squared_distance(A, B); // απεναντι  από το C
 
     // νόμος των συνημιτόνων: cos(γωνία) = (b² + c² - a²) / (2*ρίζα(b)*ρίζα(c))
     double cos_A = (b2 + c2 - a2) / (2 * sqrt(b2) * sqrt(c2));
@@ -73,12 +73,12 @@ int has_Obtuse_Angle(const Point &a, const Point &b, const Point &c)
     return -1; // Δεν υπάρχει αμβλεία γωνία
 }
 
-Point insert_Steiner(const Point &a, const Point &b) // επιστρέφει το μέσο της απέναντι πλευράς
+Point insert_Steiner(const Point &a, const Point &b) // επιστρεφει το μεσο της απεναντι πλευρας
 {
     return Point((a.x() + b.x()) / 2, (a.y() + b.y()) / 2);
 }
 
-// επιστρέφει το πλήθος των αμβλείων γωνιών του γράφου
+// επιστρεφει το πληθος των αμβλειων γωνιων του γραφου
 int count_Obtuse_Angles(CDT &cdt)
 {
     int count = 0;
@@ -243,15 +243,15 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
 
                 int is_Obtuse = has_Obtuse_Angle(a, b, c);
                 if (is_Obtuse != -1)
-                { // δηλαδή η γωνία ΔΕΝ είναι οξεία ή κάθετη -> αμβλεία
+                { // η γωνία ειναι  αμβλεια
                     insert_Steiner_points_in_convex_polygons(cdt, convex_hull,steiner_points);
                     Point steiner;
                     if (is_Obtuse == 0)
-                        steiner = insert_Steiner(b, c); // απέναντι πλευρά από το A
+                        steiner = insert_Steiner(b, c); // απεναντι πλευρα απο το A
                     else if (is_Obtuse == 1)
-                        steiner = insert_Steiner(a, c); // απέναντι πλευρά από το σημείο B
+                        steiner = insert_Steiner(a, c); // απεναντι πλευρα από το σημειο B
                     else                                // δλδ, is_Obtuse = 2
-                        steiner = insert_Steiner(a, b); // απέναντι πλευρά από το C
+                        steiner = insert_Steiner(a, b); // απεναντι πλευρα από το C
                              if (convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDED_SIDE|| convex_hull.bounded_side(steiner) ==CGAL::ON_BOUNDARY)
                     {
                         CDT temp_cdt = cdt;
