@@ -1,14 +1,18 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <queue>
 #include <vector>
 #include "json.hpp"
 #include "triangulation.h"
+#include <CGAL/Point_2.h>
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 
 using json = nlohmann::json;
 using namespace std;
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K; // Ορισμός του kernel
+typedef K::Point_2 Point; 
 
-// Συνάρτηση για φόρτωση των δεδομένων από το JSON αρχείο
 void loadDataFromJSON(const string &filename, vector<int> &points_x, vector<int> &points_y, vector<int> &region_boundary, vector<pair<int, int>> &additional_constraints,string &instance_uid)
 {
     // Άνοιγμα αρχείου JSON
@@ -58,6 +62,7 @@ void exportCompletionMessage(string instance_uid) {
 
 int main()
 {
+    queue<Point> steiner_points_queue;
     // Δεδομένα που θα φορτωθούν από το JSON αρχείο
     string instance_uid;
     vector<int> points_x;
@@ -71,6 +76,17 @@ int main()
     // Εκτέλεση τριγωνοποίησης
     triangulate(points_x, points_y, region_boundary, additional_constraints);
     cout << "Όνομα που διαβάστηκε: " << instance_uid << endl;
+    //std::cout << "Number of Steiner points added: " << steiner_points_queue.size() << std::endl;
+
     exportCompletionMessage(instance_uid);
+    while (!steiner_points_queue.empty())
+    {
+        Point steiner = steiner_points_queue.front();
+        steiner_points_queue.pop();
+
+        //εκτυπωση των steiner σημειων σαν ζυγαρια χ , ψ
+        cout << "Steiner point: (" << steiner.x() << ", " << steiner.y() << ")" << std::endl;
+    }
+
     return 0;
 }

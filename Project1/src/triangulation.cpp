@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <cmath>
 
+
 //////////////////////////////////////////////////////////
 
 // kernel
@@ -146,7 +147,7 @@ Polygon_2 find_convex_polygon_around_obtuse_triangle(CDT &cdt, Face_handle face)
 }
 
 // Μέθοδος εισαγωγής Steiner points στο εσωτερικό κυρτών πολυγώνων που σχηματίζονται από αμβλυγώνια τρίγωνα
-void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_boundary)
+void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_boundary,queue<Point> &steiner_points)
 {
     int steiner_counter = 0;
 
@@ -176,7 +177,8 @@ void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_
                 int new_obtuse_count = count_Obtuse_Angles(temp_cdt);
                 if (new_obtuse_count < original_obtuse_count)
                 {
-                    cdt.insert(centroid); // Εισαγωγή του Steiner point στην τριγωνοποίηση
+                    cdt.insert(centroid); 
+                    steiner_points.push(centroid);// Εισαγωγή του Steiner point στην τριγωνοποίηση
                     steiner_counter++;
                     //cout << "Inserted Steiner point in polygon centroid: (" << centroid.x() << ", " << centroid.y() << ")" << endl;
                 }
@@ -190,7 +192,7 @@ void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_
 void triangulate(const vector<int> &points_x, const vector<int> &points_y, const vector<int> &region_boundary, const vector<pair<int, int>> &additional_constraints)
 {
     CDT cdt;
-
+    queue<Point> steiner_points;
     // προσθήκη σημείων και ακμών του γράφου
     vector<Point> points;
     for (size_t i = 0; i < points_x.size(); ++i)
@@ -242,7 +244,7 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                 int is_Obtuse = has_Obtuse_Angle(a, b, c);
                 if (is_Obtuse != -1)
                 { // δηλαδή η γωνία ΔΕΝ είναι οξεία ή κάθετη -> αμβλεία
-                    insert_Steiner_points_in_convex_polygons(cdt, convex_hull);
+                    insert_Steiner_points_in_convex_polygons(cdt, convex_hull,steiner_points);
                     Point steiner;
                     if (is_Obtuse == 0)
                         steiner = insert_Steiner(b, c); // απέναντι πλευρά από το A
@@ -259,6 +261,8 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                         {
                             cdt.insert(steiner);
                             found_steiner_point = true;
+                            steiner_points.push(steiner);
+                            
                             cout << "Inserted Steiner point at: (" << steiner.x() << ", " << steiner.y() << ")" << endl;
                             steiner_counter++;
                             break;
@@ -275,6 +279,7 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                         if (new_obtuse_count < original_graph_count)
                         {
                             cdt.insert(steiner);
+                            steiner_points.push(steiner);
                             found_steiner_point = true;
                             cout << "Inserted Steiner point at circumcenter: (" << steiner.x() << ", " << steiner.y() << ")" << endl;
                             steiner_counter++;
