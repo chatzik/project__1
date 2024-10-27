@@ -166,7 +166,7 @@ void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_
             Point centroid = CGAL::centroid(convex_polygon.vertices_begin(), convex_polygon.vertices_end());
 
             // Έλεγχος αν το centroid βρίσκεται εντός του αρχικού κυρτού περιβλήματος
-            // if (region_boundary.bounded_side(centroid) == CGAL::ON_BOUNDED_SIDE)
+             if (region_boundary.bounded_side(centroid) == CGAL::ON_BOUNDED_SIDE||region_boundary.bounded_side(centroid) == CGAL::ON_BOUNDARY)
             {
                 CDT temp_cdt = cdt;
                 temp_cdt.insert(centroid);
@@ -178,7 +178,7 @@ void insert_Steiner_points_in_convex_polygons(CDT &cdt, const Polygon_2 &region_
                 {
                     cdt.insert(centroid); // Εισαγωγή του Steiner point στην τριγωνοποίηση
                     steiner_counter++;
-                    cout << "Inserted Steiner point in polygon centroid: (" << centroid.x() << ", " << centroid.y() << ")" << endl;
+                    //cout << "Inserted Steiner point in polygon centroid: (" << centroid.x() << ", " << centroid.y() << ")" << endl;
                 }
             }
         }
@@ -250,7 +250,7 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                         steiner = insert_Steiner(a, c); // απέναντι πλευρά από το σημείο B
                     else                                // δλδ, is_Obtuse = 2
                         steiner = insert_Steiner(a, b); // απέναντι πλευρά από το C
-                                                        // if (convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDED_SIDE)
+                             if (convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDED_SIDE|| convex_hull.bounded_side(steiner) ==CGAL::ON_BOUNDARY)
                     {
                         CDT temp_cdt = cdt;
                         temp_cdt.insert(steiner);
@@ -267,7 +267,7 @@ void triangulate(const vector<int> &points_x, const vector<int> &points_y, const
                     /////////////////////////////////////////////////////////////////// Μέθοδος 2
                     // Χρήση της έτοιμης συνάρτησης της CGAL circumcenter για υπολογισμό περικέντρου
                     steiner = circumcenter(a, b, c);
-                    if (convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDED_SIDE)
+                    if (convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDED_SIDE||convex_hull.bounded_side(steiner) == CGAL::ON_BOUNDARY )
                     {
                         CDT temp_cdt = cdt;
                         temp_cdt.insert(steiner);
